@@ -8,37 +8,33 @@
 import UIKit
 
 protocol ITodoListViewController: AnyObject {
-	func updateTaskList(tasks: [TaskItem])
+	func displayTasks(tasks: [TaskItem])
 }
 
 final class TodoListViewController: UITableViewController {
 
 	private var tasks: [TaskItem] = []
-	var interactor: ITodoListInteractor
+	var presenter: ITodoListPresenterProtocol!
 
+	required init() {
+		super.init(style: .plain)
+	}
+	
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
 	
-	init(interactor: ITodoListInteractor) {
-		self.interactor = interactor
-		super.init(style: .plain)
-	}
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .white
 		tableView.register(TaskTableViewCell.self, forCellReuseIdentifier: TaskTableViewCell.identifier)
+		
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		loadTasks()
-	}
-
-	private func loadTasks() {
-		interactor.fetchDataFromJson()
-		tableView.reloadData()
+		presenter.viewDidLoad()
 	}
 
 }
@@ -62,17 +58,16 @@ extension TodoListViewController {
 extension TodoListViewController {
 	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		let task = tasks[indexPath.row]
-		task.isCompleted.toggle()
-		
-		interactor.updateTask(task: task)
-		tableView.reloadRows(at: [indexPath], with: .automatic)
+		presenter.didSelectTask(task)
+
+//		tableView.reloadRows(at: [indexPath], with: .automatic)
 	}
 }
 extension TodoListViewController : ITodoListViewController {
-	func updateTaskList(tasks: [TaskItem]) {
+	func displayTasks(tasks: [TaskItem]) {
 		self.tasks = tasks
 		tableView.reloadData() // Обновляем таблицу
 	}
-	
-	
 }
+
+

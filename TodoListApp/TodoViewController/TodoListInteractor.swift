@@ -6,21 +6,26 @@
 //
 
 import Foundation
-protocol ITodoListInteractor {
+protocol ITodoListInteractor: AnyObject {
 	func fetchDataFromJson()
 	func updateTask(task: TaskItem)
 }
 
 
 final class TodoListInteractor: ITodoListInteractor {
-	//var presenter:
+	
+	weak var presenter: ITodoListPresenterProtocol?
 	var taskList: [TaskItem] = []
 	var networkmanager: INetworkmanager?
 	private let storageManager: IStorageManager
 	private let taskmanager: ITaskManager
-	weak var viewController: ITodoListViewController?
+	//weak var viewController: ITodoListViewController?
 	
-	init(networkmanager: INetworkmanager, storageManager: IStorageManager, taskmanager: ITaskManager) {
+	init(
+		networkmanager: INetworkmanager,
+		storageManager: IStorageManager,
+		taskmanager: ITaskManager
+	) {
 		self.networkmanager = networkmanager
 		self.storageManager = storageManager
 		self.taskmanager = taskmanager
@@ -30,8 +35,9 @@ final class TodoListInteractor: ITodoListInteractor {
 	
 	func fetchDataFromJson() {
 		
-		let taskEntities = storageManager.fetchTasks()
-		taskList = taskEntities.map {$0.toModelTaskItem()}
+//		let taskEntities = storageManager.fetchTasks()
+//		taskList = taskEntities.map {$0.toModelTaskItem()}
+		loadTasksFromStorage()
 		
 		if taskList.isEmpty {
 			
@@ -47,13 +53,14 @@ final class TodoListInteractor: ITodoListInteractor {
 					if let response = response {
 						let taskItems = self.convertTasksToTaskItems(tasks: response.todos)
 						self.taskList = taskItems
-						print(self.taskList.last!.title)
+						
 						
 						self.storageManager.saveTasks(taskItems: taskItems)
-						//self.storageManager.saveTasksToCoreData(tasks: taskItems)
+						self.presenter?.didFetchTasks(taskItems)
 						
 						DispatchQueue.main.async {
-							self.viewController?.updateTaskList(tasks: self.taskList)
+							self.presenter?.didFetchTasks(self.taskList)
+							//self.viewController?.updateTaskList(tasks: self.taskList)
 							print("Задачи загружены из Json")
 						}
 					}
@@ -61,12 +68,15 @@ final class TodoListInteractor: ITodoListInteractor {
 			)
 		} else {
 			DispatchQueue.main.async {
-				  self.viewController?.updateTaskList(tasks: self.taskList)
+				 // self.viewController?.updateTaskList(tasks: self.taskList)
+				self.presenter?.didFetchTasks(self.taskList)
 				print("Задачи загружены из CoreData")
 			  }
 		}
 		
 	}
+	
+
 	
 	func convertTasksToTaskItems(tasks: [Task]) -> [TaskItem] {
 		return tasks.map { TaskItem(from: $0) }
@@ -79,8 +89,18 @@ final class TodoListInteractor: ITodoListInteractor {
 		
 	}
 	
+
 	func updateTask(task: TaskItem) {
+		task.isCompleted.toggle()
+		
 		taskmanager.editTask(task: task)
+		storageManager.saveTask(
+			id: task.id,
+			title: task.title,
+			description: task.description ?? "",
+			isCompleted: task.isCompleted,
+			date: task.date ?? Date()
+		)
 	}
 
 }

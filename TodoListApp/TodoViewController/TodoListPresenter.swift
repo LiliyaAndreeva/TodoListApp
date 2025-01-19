@@ -6,10 +6,36 @@
 //
 
 import Foundation
-protocol ITodoListPresenter {
-	
+protocol ITodoListPresenterProtocol: AnyObject {
+	func viewDidLoad()
+	func didSelectTask(_ task: TaskItem)
+	func didFetchTasks(_ tasks: [TaskItem])
 }
 
-final class TodoListPresenter {
+final class TodoListPresenter: ITodoListPresenterProtocol {
+	weak var view: ITodoListViewController?
+	private let interactor: ITodoListInteractor
+	private let router: TodoListRouterProtocol
 	
+	init(
+		view: ITodoListViewController,
+		interactor: ITodoListInteractor,
+		router: TodoListRouterProtocol
+	) {
+			self.view = view
+			self.interactor = interactor
+			self.router = router
+		}
+	
+	func viewDidLoad() {
+		interactor.fetchDataFromJson()
+	}
+	
+	func didFetchTasks(_ tasks: [TaskItem]) {
+		view?.displayTasks(tasks: tasks)
+	}
+	
+	func didSelectTask(_ task: TaskItem) {
+		interactor.updateTask(task: task)
+	}
 }

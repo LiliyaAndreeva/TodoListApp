@@ -1,5 +1,5 @@
 //
-//  Task.swift
+//  Entities.swift
 //  TodoListApp
 //
 //  Created by Лилия Андреева on 19.01.2025.
@@ -37,4 +37,3 @@ struct Task: Codable {
 		self.userId = userId
 	}
 }
-
