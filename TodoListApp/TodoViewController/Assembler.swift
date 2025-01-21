@@ -5,6 +5,7 @@
 //  Created by Лилия Андреева on 19.01.2025.
 //
 
+import UIKit
 import Foundation
 final class Assembler {
 	static func assemble() -> TodoListViewController {
@@ -34,4 +35,15 @@ final class Assembler {
 		return viewController
 	}
 
+	
+	static func assembleNavigationController() -> UINavigationController {
+		let viewController = assemble()
+		let navigationController = UINavigationController(rootViewController: viewController)
+
+		return navigationController
+	}
+	
+	
 }
+
+

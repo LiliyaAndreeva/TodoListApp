@@ -8,7 +8,10 @@
 import Foundation
 protocol ITodoListInteractor: AnyObject {
 	func fetchDataFromJson()
-	func updateTask(task: TaskItem)
+	func getTaskListCount() -> Int
+	func updateTask(with id: Int)
+	func removeTask(at indexPath: IndexPath)
+	func shareTask(at indexPath: IndexPath)
 }
 
 
@@ -19,7 +22,7 @@ final class TodoListInteractor: ITodoListInteractor {
 	var networkmanager: INetworkmanager?
 	private let storageManager: IStorageManager
 	private let taskmanager: ITaskManager
-	//weak var viewController: ITodoListViewController?
+
 	
 	init(
 		networkmanager: INetworkmanager,
@@ -34,9 +37,6 @@ final class TodoListInteractor: ITodoListInteractor {
 	
 	
 	func fetchDataFromJson() {
-		
-//		let taskEntities = storageManager.fetchTasks()
-//		taskList = taskEntities.map {$0.toModelTaskItem()}
 		loadTasksFromStorage()
 		
 		if taskList.isEmpty {
@@ -89,18 +89,41 @@ final class TodoListInteractor: ITodoListInteractor {
 		
 	}
 	
-
-	func updateTask(task: TaskItem) {
-		task.isCompleted.toggle()
+	func updateTask(with id: Int) {
+		guard let index = taskList.firstIndex(where: { $0.id == id }) else { return }
+		taskList[index].isCompleted.toggle() // Переключаем состояние
 		
-		taskmanager.editTask(task: task)
-		storageManager.saveTask(
-			id: task.id,
-			title: task.title,
-			description: task.description ?? "",
-			isCompleted: task.isCompleted,
-			date: task.date ?? Date()
-		)
+		let updatedTask = taskList[index]
+		taskmanager.editTask(task: updatedTask) // Обновляем в TaskManager
+		
+		// Сохраняем в хранилище		
+		presenter?.didUpdateTask(updatedTask) // Уведомляем презентер
 	}
 
+//	func updateTask(task: TaskItem) {
+//		task.isCompleted.toggle()
+//		
+//		taskmanager.editTask(task: task)
+//		storageManager.saveTask(
+//			id: task.id,
+//			title: task.title,
+//			description: task.description ?? "",
+//			isCompleted: task.isCompleted,
+//			date: task.date ?? Date()
+//		)
+//	}
+	func getTaskListCount() -> Int {
+		return taskList.count
+	}
+	func shareTask(at indexPath: IndexPath)
+	{
+		print("ShareTask button did tapped")
+	}
+
+	func removeTask(at indexPath: IndexPath) {
+		let task = taskList[indexPath.row]
+		taskmanager.removeTask(task: task)  // Удаляем задачу из TaskManager
+		//taskList.remove(at: indexPath.row)  // Удаляем из списка задач
+		presenter?.didFetchTasks(taskList)
+	}
 }

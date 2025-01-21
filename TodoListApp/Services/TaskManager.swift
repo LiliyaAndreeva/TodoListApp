@@ -88,12 +88,13 @@ final class TaskManager: ITaskManager {
 			taskList[index] = task
 		}
 		
-		storageManager.saveTask(
+		storageManager.editTask(
 			id: task.id,
-			title: task.title ,
+			title: task.title,
 			description: task.description ?? "",
-			isCompleted: task.isCompleted,
-			date: task.date ?? Date()
+			date: task.date ?? Date(),
+			completed: task.isCompleted
 		)
+			
 	}
 }

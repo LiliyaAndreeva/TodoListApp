@@ -14,17 +14,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 	func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
 		guard let scene = (scene as? UIWindowScene) else { return }
-		
-		
-		let viewController = Assembler.assemble()
-		
-		let navigationController = UINavigationController(
-			rootViewController: viewController)
-		navigationController.navigationBar.prefersLargeTitles = true
 
+		let navigationController = Assembler.assembleNavigationController()
+		
 		let window = UIWindow(windowScene: scene)
 
 		window.rootViewController = navigationController
+		window.overrideUserInterfaceStyle = .dark
 		window.makeKeyAndVisible()
 		self.window = window
 

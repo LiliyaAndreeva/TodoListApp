@@ -106,7 +106,7 @@ extension StorageManager: IStorageManager {
 				  completed: Bool) {
 		
 		let fetchRequest = TaskEntity.fetchRequest()
-		fetchRequest.predicate = NSPredicate(format: "id == %@", id)
+		fetchRequest.predicate = NSPredicate(format: "id == %@", NSNumber(value: id))
 		
 		do {
 			let result = try context.fetch(fetchRequest)
@@ -118,8 +118,6 @@ extension StorageManager: IStorageManager {
 				
 				saveContext()
 				print("Задача обновлена в Core Data: \(taskEntity)")
-			} else {
-				print("Задача с id \(id) не найдена")
 			}
 		} catch {
 			print("Ошибка при редактировании задачи в Core Data: \(error)")
