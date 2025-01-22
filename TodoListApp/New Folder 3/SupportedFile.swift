@@ -7,6 +7,7 @@
 
 import UIKit
 enum FontSizes {
+	static let sizeBig: CGFloat  = 34
 	static let sizeXl: CGFloat  = 26
 	static let sizeL: CGFloat  = 22
 	static let sizeM: CGFloat  = 16

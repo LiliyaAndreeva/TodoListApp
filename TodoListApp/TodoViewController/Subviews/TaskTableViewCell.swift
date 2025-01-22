@@ -91,7 +91,7 @@ private extension TaskTableViewCell {
 
 	 func setupTitleLabel() -> UILabel {
 		let label = UILabel()
-		label.font = UIFont.sfPro(size: FontSizes.sizeM )
+		label.font = UIFont.sfProRegular(size: FontSizes.sizeM )
 		label.textColor = .white
 		label.numberOfLines = 1
 		return label
@@ -100,15 +100,19 @@ private extension TaskTableViewCell {
 	func setupDescribtionLabel() -> UILabel {
 		let label = UILabel()
 
-		label.font = UIFont.sfPro(size: FontSizes.sizeS)
+		label.font = UIFont.sfProRegular(size: FontSizes.sizeS)
 		label.textColor = .gray
 		label.numberOfLines = 2
+		label.lineBreakMode = .byWordWrapping
+		label.translatesAutoresizingMaskIntoConstraints = false
+		//label.heightAnchor.constraint(equalToConstant:  ).isActive = true
+		//label.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 		return label
 	}
 
 	func setupDateLabel() -> UILabel {
 		let label = UILabel()
-		label.font = UIFont.sfPro(size: FontSizes.sizeS)
+		label.font = UIFont.sfProRegular(size: FontSizes.sizeS)
 		label.textColor = .gray
 		label.textAlignment = .right
 		return label
@@ -118,8 +122,8 @@ private extension TaskTableViewCell {
 		let stack = UIStackView(arrangedSubviews: [titleLabel, descriptionLabel, dateLabel])
 		stack.axis = .vertical
 		stack.alignment = .leading
-		stack.distribution = .fillEqually
-		stack.spacing = SpacingSizes.sizeXS
+		stack.distribution = .fill
+		stack.spacing = 4
 		return stack
 	}
 
@@ -146,5 +150,6 @@ private extension TaskTableViewCell {
 			statusButton.widthAnchor.constraint(equalToConstant: ConstraintSizes.sizeXl),
 			statusButton.heightAnchor.constraint(equalToConstant: ConstraintSizes.sizeXl)
 		])
+		descriptionLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 1/3).isActive = true
 	}
 }

@@ -11,7 +11,10 @@ extension UIFont {
 		return UIFont(name: name, size: size) ?? UIFont()
 		
 	}
-	static func sfPro(size: CGFloat) -> UIFont {
+	static func sfProRegular(size: CGFloat) -> UIFont {
 		return customFont(name: "SFPro-Regular", size: size)
+	}
+	static func sfProBold(size: CGFloat) -> UIFont {
+		return customFont(name: "SFPro-Bold", size: size)
 	}
 }

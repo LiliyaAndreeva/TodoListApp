@@ -13,6 +13,7 @@ protocol ITodoListPresenterProtocol: AnyObject {
 	func toggleTaskCompletion(taskId: Int)
 	func didSelectTask(_ task: TaskItem)
 	func shareTask(at indexPath: IndexPath)
+	func addNewTask()
 	
 	func didFetchTasks(_ tasks: [TaskItem])
 	func getTaskCount() -> Int
@@ -32,10 +33,10 @@ final class TodoListPresenter: ITodoListPresenterProtocol {
 		interactor: ITodoListInteractor,
 		router: TodoListRouterProtocol
 	) {
-			self.view = view
-			self.interactor = interactor
-			self.router = router
-		}
+		self.view = view
+		self.interactor = interactor
+		self.router = router
+	}
 
 
 	func filterTasks(by searchText: String) -> [TaskItem] {
@@ -57,6 +58,9 @@ final class TodoListPresenter: ITodoListPresenterProtocol {
 	func didSelectTask(_ task: TaskItem) {
 //		interactor.updateTask(with: task)
 		router.navigateToTaskDetails(for: task)
+	}
+	func addNewTask() {
+		router.navigateToTaskDetails(for: nil)
 	}
 	
 	func getTaskCount() -> Int {

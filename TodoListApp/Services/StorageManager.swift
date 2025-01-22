@@ -14,7 +14,8 @@ protocol IStorageManager {
 	func editTask(id: Int, title: String, description: String, date: Date, completed: Bool)
 	func deleteTask(_ task: TaskEntity)
 	func saveTasks(taskItems: [TaskItem])
-	func saveTasksToCoreData(tasks: [TaskItem])
+//	func saveTasksToCoreData(tasks: [TaskItem])
+	func deleteTask(withId id: Int)
 }
 
 final class StorageManager {
@@ -129,14 +130,32 @@ extension StorageManager: IStorageManager {
 		saveContext()
 	}
 	
-	func saveTasksToCoreData(tasks: [TaskItem]/*, context: NSManagedObjectContext*/) {
-		for taskItem in tasks {
-			let _ = taskItem.toEntity(in: context)
-		}
+	func deleteTask(withId id: Int) {
+		let fetchRequest = TaskEntity.fetchRequest()
+		fetchRequest.predicate = NSPredicate(format: "id == %@", NSNumber(value: id))
+		
 		do {
-			try context.save()
+			let tasksToDelete = try context.fetch(fetchRequest)
+			
+			// Удаляем все задачи с данным id
+			for task in tasksToDelete {
+				context.delete(task)
+			}
+			saveContext()
+			print("Удалено задач: \(tasksToDelete.count) с id \(id) из Core Data")
 		} catch {
-			print("Error saving to Core Data: \(error)")
+			print("Ошибка при удалении задачи с id \(id) из Core Data: \(error)")
 		}
 	}
+	
+//	func saveTasksToCoreData(tasks: [TaskItem]/*, context: NSManagedObjectContext*/) {
+//		for taskItem in tasks {
+//			let _ = taskItem.toEntity(in: context)
+//		}
+//		do {
+//			try context.save()
+//		} catch {
+//			print("Error saving to Core Data: \(error)")
+//		}
+//	}
 }

@@ -5,7 +5,11 @@
 //  Created by Лилия Андреева on 20.01.2025.
 //
 
-import Foundation
-final class TaskDetailsRouter {
+import UIKit
+protocol ITaskDetailsRouter {
 	
+}
+
+final class TaskDetailsRouter: ITaskDetailsRouter {
+	weak var viewController: UIViewController?
 }

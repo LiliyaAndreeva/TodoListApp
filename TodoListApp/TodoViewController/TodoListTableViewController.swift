@@ -28,9 +28,9 @@ final class TodoListViewController: UIViewController{
 		super.viewDidLoad()
 		view.backgroundColor = .systemBackground
 		setupUI()
-		configureNavigationBar()
-		setupToolbarItems()
+		setupnavigationUI()
 		presenter.viewDidLoad()
+		
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
@@ -187,6 +187,16 @@ private extension TodoListViewController {
 		tableView.dataSource = self
 		return tableView
 	}
+	func setupBackButton() {
+		let backButton = UIBarButtonItem()
+		backButton.title = "Назад" // Устанавливаем текст кнопки
+		navigationItem.backBarButtonItem = backButton
+	}
+	func setupnavigationUI() {
+		configureNavigationBar()
+		setupToolbarItems()
+		setupBackButton()
+	}
 	
 	func setupUI() {
 		view.addSubview(searchBar)
@@ -229,6 +239,7 @@ private extension TodoListViewController {
 	}
 	@objc
 	func editButtonTapped() {
+		presenter.addNewTask()
 		print("кнопка создания новой задачи нажата")
 	}
 }

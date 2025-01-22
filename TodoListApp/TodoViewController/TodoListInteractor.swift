@@ -22,7 +22,7 @@ final class TodoListInteractor: ITodoListInteractor {
 	var networkmanager: INetworkmanager?
 	private let storageManager: IStorageManager
 	private let taskmanager: ITaskManager
-
+	
 	
 	init(
 		networkmanager: INetworkmanager,
@@ -68,15 +68,15 @@ final class TodoListInteractor: ITodoListInteractor {
 			)
 		} else {
 			DispatchQueue.main.async {
-				 // self.viewController?.updateTaskList(tasks: self.taskList)
+				// self.viewController?.updateTaskList(tasks: self.taskList)
 				self.presenter?.didFetchTasks(self.taskList)
 				print("Задачи загружены из CoreData")
-			  }
+			}
 		}
 		
 	}
 	
-
+	
 	
 	func convertTasksToTaskItems(tasks: [Task]) -> [TaskItem] {
 		return tasks.map { TaskItem(from: $0) }
@@ -90,28 +90,21 @@ final class TodoListInteractor: ITodoListInteractor {
 	}
 	
 	func updateTask(with id: Int) {
-		guard let index = taskList.firstIndex(where: { $0.id == id }) else { return }
-		taskList[index].isCompleted.toggle() // Переключаем состояние
-		
-		let updatedTask = taskList[index]
-		taskmanager.editTask(task: updatedTask) // Обновляем в TaskManager
-		
-		// Сохраняем в хранилище		
-		presenter?.didUpdateTask(updatedTask) // Уведомляем презентер
+		DispatchQueue.global(qos: .background).async { [weak self] in
+			guard let self = self else { return }
+			guard let index = taskList.firstIndex(where: { $0.id == id }) else { return }
+			taskList[index].isCompleted.toggle() // Переключаем состояние
+			
+			let updatedTask = taskList[index]
+			self.taskmanager.editTask(task: updatedTask) // Обновляем в TaskManager
+			
+			// Сохраняем в хранилище
+			DispatchQueue.main.async {
+				self.presenter?.didUpdateTask(updatedTask) // Уведомляем презентер
+			}
+		}
 	}
-
-//	func updateTask(task: TaskItem) {
-//		task.isCompleted.toggle()
-//		
-//		taskmanager.editTask(task: task)
-//		storageManager.saveTask(
-//			id: task.id,
-//			title: task.title,
-//			description: task.description ?? "",
-//			isCompleted: task.isCompleted,
-//			date: task.date ?? Date()
-//		)
-//	}
+	
 	func getTaskListCount() -> Int {
 		return taskList.count
 	}
@@ -119,11 +112,20 @@ final class TodoListInteractor: ITodoListInteractor {
 	{
 		print("ShareTask button did tapped")
 	}
+	
 
 	func removeTask(at indexPath: IndexPath) {
-		let task = taskList[indexPath.row]
-		taskmanager.removeTask(task: task)  // Удаляем задачу из TaskManager
-		//taskList.remove(at: indexPath.row)  // Удаляем из списка задач
-		presenter?.didFetchTasks(taskList)
+		DispatchQueue.global(qos: .background).async { [weak self] in
+			guard let self = self else { return }
+			
+			let task = self.taskList[indexPath.row]
+			self.storageManager.deleteTask(withId: task.id)
+			self.taskList.remove(at: indexPath.row)
+			
+			DispatchQueue.main.async {
+				self.presenter?.didFetchTasks(self.taskList)
+				print("Задача с id \(task.id) успешно удалена")
+			}
+		}
 	}
 }
