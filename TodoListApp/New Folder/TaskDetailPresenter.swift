@@ -9,7 +9,6 @@ import Foundation
 protocol ITaskDetailsPresenter: AnyObject {
 	func onViewDidLoad()
 	func updateTask(_ task: TaskItem)
-	func didUpdateTask(_ task: TaskItem)
 }
 
 final class TaskDetailsPresenter: ITaskDetailsPresenter {
@@ -40,7 +39,5 @@ final class TaskDetailsPresenter: ITaskDetailsPresenter {
 	func updateTask(_ task: TaskItem) {
 		interactor.updateTask(task)
 	}
-	func didUpdateTask(_ task: TaskItem) {
-		view?.updateUI(with: task) // Передача обновленных данных в view
-	}
+
 }

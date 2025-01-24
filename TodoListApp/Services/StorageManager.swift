@@ -147,15 +147,5 @@ extension StorageManager: IStorageManager {
 			print("Ошибка при удалении задачи с id \(id) из Core Data: \(error)")
 		}
 	}
-	
-//	func saveTasksToCoreData(tasks: [TaskItem]/*, context: NSManagedObjectContext*/) {
-//		for taskItem in tasks {
-//			let _ = taskItem.toEntity(in: context)
-//		}
-//		do {
-//			try context.save()
-//		} catch {
-//			print("Error saving to Core Data: \(error)")
-//		}
-//	}
+
 }

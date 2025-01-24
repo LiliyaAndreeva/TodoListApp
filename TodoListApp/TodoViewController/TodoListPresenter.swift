@@ -7,8 +7,7 @@
 
 import Foundation
 protocol ITodoListPresenterProtocol: AnyObject {
-	
-	func filterTasks(by searchText: String) -> [TaskItem]
+
 	func viewDidLoad()
 	func toggleTaskCompletion(taskId: Int)
 	func didSelectTask(_ task: TaskItem)
@@ -16,10 +15,10 @@ protocol ITodoListPresenterProtocol: AnyObject {
 	func addNewTask()
 	
 	func didFetchTasks(_ tasks: [TaskItem])
-	func getTaskCount() -> Int
 	func didUpdateTask(_ task: TaskItem)
 	func editTask(_ task: TaskItem)
 	func deleteTask(at indexPath: IndexPath)
+	func didEditTask(_ task: TaskItem)
 }
 
 final class TodoListPresenter: ITodoListPresenterProtocol {
@@ -38,11 +37,6 @@ final class TodoListPresenter: ITodoListPresenterProtocol {
 		self.router = router
 	}
 
-
-	func filterTasks(by searchText: String) -> [TaskItem] {
-		[]
-	}
-	
 	func shareTask(at indexPath: IndexPath) {
 		interactor.shareTask(at: indexPath)
 	}
@@ -56,16 +50,21 @@ final class TodoListPresenter: ITodoListPresenterProtocol {
 	}
 	
 	func didSelectTask(_ task: TaskItem) {
-//		interactor.updateTask(with: task)
 		router.navigateToTaskDetails(for: task)
 	}
 	func addNewTask() {
-		router.navigateToTaskDetails(for: nil)
+		let newTask = TaskItem(
+			title: "Введите название задачи",
+			description: "Введите описание задачи",
+			date: Date(),
+			completed: false,
+			id: Int(Date().timeIntervalSince1970)
+		)
+		interactor.addTask(newTask)
+		router.navigateToTaskDetails(for: newTask)
 	}
-	
-	func getTaskCount() -> Int {
-		return interactor.getTaskListCount()
-	}
+
+	//обновление статуса в ячейке
 	func toggleTaskCompletion(taskId: Int) {
 		interactor.updateTask(with: taskId)
 	}
@@ -73,9 +72,14 @@ final class TodoListPresenter: ITodoListPresenterProtocol {
 	func didUpdateTask(_ task: TaskItem) {
 		view?.updateTask(task)
 	}
-	
+
+
 	func editTask(_ task: TaskItem) {
 		interactor.updateTask(with: task.id)
+	}
+	
+	func didEditTask(_ task: TaskItem) {
+		view?.updateTask(task)
 	}
 	
 	func deleteTask(at indexPath: IndexPath) {

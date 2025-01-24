@@ -27,7 +27,8 @@ enum CornerRadiusSize{
 }
 enum ConstraintSizes {
 	static let sizeBig: CGFloat  = 36
-	static let sizeXl: CGFloat  = 24
+	static let sizeXXl: CGFloat  = 24
+	static let sizeXl: CGFloat  = 20
 	static let sizeL: CGFloat  = 16
 	static let sizeM: CGFloat  = 12
 	static let sizeS: CGFloat  = 8

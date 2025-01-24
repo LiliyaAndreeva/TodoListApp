@@ -11,8 +11,7 @@ final class TaskTableViewCell: UITableViewCell {
 	static let identifier = "TaskTableViewCell"
 	var onToggleCompletion: ((Int) -> Void)?
 	var taskId: Int?
-	
-	// UI элементы
+
 	private lazy var statusButton = setupButon()
 	private lazy var titleLabel = setupTitleLabel()
 	private lazy var descriptionLabel = setupDescribtionLabel()
@@ -99,14 +98,11 @@ private extension TaskTableViewCell {
 
 	func setupDescribtionLabel() -> UILabel {
 		let label = UILabel()
-
 		label.font = UIFont.sfProRegular(size: FontSizes.sizeS)
 		label.textColor = .gray
 		label.numberOfLines = 2
 		label.lineBreakMode = .byWordWrapping
 		label.translatesAutoresizingMaskIntoConstraints = false
-		//label.heightAnchor.constraint(equalToConstant:  ).isActive = true
-		//label.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 		return label
 	}
 
@@ -147,8 +143,8 @@ private extension TaskTableViewCell {
 			horizontalStackView.topAnchor.constraint(greaterThanOrEqualTo: contentView.topAnchor, constant: ConstraintSizes.sizeS),
 			horizontalStackView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -ConstraintSizes.sizeS),
 			
-			statusButton.widthAnchor.constraint(equalToConstant: ConstraintSizes.sizeXl),
-			statusButton.heightAnchor.constraint(equalToConstant: ConstraintSizes.sizeXl)
+			statusButton.widthAnchor.constraint(equalToConstant: ConstraintSizes.sizeXXl),
+			statusButton.heightAnchor.constraint(equalToConstant: ConstraintSizes.sizeXXl)
 		])
 		descriptionLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 1/3).isActive = true
 	}

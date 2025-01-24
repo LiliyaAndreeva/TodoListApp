@@ -9,13 +9,12 @@
 import UIKit
 protocol ITaskDetailsViewController: AnyObject {
 	func updateTaskData(_ task: TaskItem?)
-	func updateUI(with task: TaskItem)
 }
 
 final class TaskDetailsViewController: UIViewController {
 	var task: TaskItem?
-	var isEditingMode: Bool = false
 	var presenter: ITaskDetailsPresenter!
+	var onSave: ((TaskItem?) -> Void)?
 	
 	private lazy var titleTextView = setupTitleTextView()
 	
@@ -37,26 +36,47 @@ final class TaskDetailsViewController: UIViewController {
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
 		navigationController?.setToolbarHidden(false, animated: animated)
+		
+		if let updatedTask = saveTaskIfNeeded(), isMovingFromParent {
+			onSave?(updatedTask)
+		}
 	}
-	
+
 }
 
 extension TaskDetailsViewController: ITaskDetailsViewController {
 
-	func updateUI(with task: TaskItem) {
-
-		titleTextView.text = task.title
-		descriptionTextView.text = task.description
-	}
 	func updateTaskData(_ task: TaskItem?) {
 		self.task = task
-		titleTextView.text = task?.title ?? "Заголовок"
+		titleTextView.text = task?.title ?? "Введите название задачи"
 		descriptionTextView.text = task?.description ?? ""
 		dateLabel.text = DateFormatter.localizedString(
 			from: task?.date ?? Date(),
 			dateStyle: .medium,
 			timeStyle: .none
 		)
+	}
+	
+	@discardableResult
+	private func saveTaskIfNeeded() -> TaskItem? {
+		guard let updatedTask = task else { return nil }
+
+		let hasTitleChanged = titleTextView.text != updatedTask.title
+		let hasDescriptionChanged = descriptionTextView.text != updatedTask.description
+
+		if hasTitleChanged {
+			updatedTask.title = titleTextView.text
+		}
+
+		if hasDescriptionChanged {
+			updatedTask.description = descriptionTextView.text
+		}
+
+		if hasTitleChanged || hasDescriptionChanged {
+			presenter.updateTask(updatedTask)
+			print("Task was updated and saved: \(updatedTask.title)")
+		}
+		return updatedTask
 	}
 }
 	
@@ -75,6 +95,9 @@ extension TaskDetailsViewController {
 		textView.delegate = self
 		textView.textContainerInset = .zero
 		textView.textContainer.lineFragmentPadding = 0
+		textView.textContainer.lineBreakMode = .byWordWrapping
+		textView.setContentHuggingPriority(.defaultHigh, for: .vertical)
+		textView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 		return textView
 	}
 	
@@ -94,7 +117,6 @@ extension TaskDetailsViewController {
 		textView.font = UIFont.sfProRegular(size: FontSizes.sizeM)
 		textView.textColor = .white
 		textView.backgroundColor = .clear
-		//textView.backgroundColor = .red
 		textView.isEditable = true
 		textView.isScrollEnabled = true
 		textView.delegate = self
@@ -123,14 +145,14 @@ extension TaskDetailsViewController {
 		descriptionTextView.translatesAutoresizingMaskIntoConstraints = false
 
 		NSLayoutConstraint.activate([
-			stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-			stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+			stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: ConstraintSizes.sizeXl),
+			stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -ConstraintSizes.sizeXl),
 			stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 106),
 			
-			descriptionTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-			descriptionTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-			descriptionTextView.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 16),
-			descriptionTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20),
+			descriptionTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: ConstraintSizes.sizeXl),
+			descriptionTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -ConstraintSizes.sizeXl),
+			descriptionTextView.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: ConstraintSizes.sizeL),
+			descriptionTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -ConstraintSizes.sizeXl),
 			titleTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
 		])
 	}
@@ -139,22 +161,32 @@ extension TaskDetailsViewController {
 
 extension TaskDetailsViewController: UITextViewDelegate {
 	func textViewDidBeginEditing(_ textView: UITextView) {
-		if textView.textColor == .lightGray {
-			textView.text = nil
-			textView.textColor = .white
-		}
 		textView.becomeFirstResponder()
-	}
-	
-	func textViewDidEndEditing(_ textView: UITextView) {
-
-		guard let task = task else { return }
-		
 		if textView == titleTextView {
-			task.title = textView.text
-		} else if textView == descriptionTextView {
-			task.description = textView.text
+			if textView.text == "Введите название задачи" {
+				textView.text = ""
+				textView.textColor = .white
+			}
+		} else {
+			if textView.text == "Введите описание задачи" {
+				textView.text = ""
+				textView.textColor = .white
+			}
 		}
-		presenter.updateTask(task)
 	}
+	func textViewDidEndEditing(_ textView: UITextView) {
+		if textView == descriptionTextView && textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+			textView.text = "Введите описание задачи"
+			textView.textColor = .gray
+		}
+	}
+	func textViewDidChange(_ textView: UITextView) {
+			let size = textView.sizeThatFits(CGSize(width: textView.frame.width, height: .greatestFiniteMagnitude))
+			textView.constraints.forEach { constraint in
+				if constraint.firstAttribute == .height {
+					constraint.constant = size.height
+				}
+			}
+			view.layoutIfNeeded()
+		}
 }

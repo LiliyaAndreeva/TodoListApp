@@ -7,17 +7,6 @@
 
 import Foundation
 protocol ITaskManager {
-	/// Список всех заданий.
-	/// - Returns: Массив заданий.
-	func allTasks() -> [TaskItem]
-
-	/// Список выполненных заданий.
-	/// - Returns: Массив заданий.
-	func completedTasks() -> [TaskItem]
-
-	/// Список заданий для выполнения.
-	/// - Returns: Массив заданий.
-	func uncompletedTasks() -> [TaskItem]
 
 	/// Добавление нового задания.
 	/// - Parameter task: Задание.
@@ -33,32 +22,14 @@ protocol ITaskManager {
 
 final class TaskManager: ITaskManager {
 	
-	private var taskList = [TaskItem]()
+	/*private */var taskList = [TaskItem]()
 	private let storageManager: IStorageManager
 	
 	
 	init(storageManager: IStorageManager) {
 		self.storageManager = storageManager
 	}
-	
-	/// Список всех заданий.
-	/// - Returns: Массив заданий.
-	func allTasks() -> [TaskItem] {
-		taskList
-	}
-	
-	/// Список выполненных заданий.
-	/// - Returns: Массив заданий.
-	func completedTasks() -> [TaskItem] {
-		taskList.filter { $0.isCompleted }
-	}
-	
-	/// Список заданий для выполнения.
-	/// - Returns: Массив заданий.
-	func uncompletedTasks() -> [TaskItem] {
-		taskList.filter { !$0.isCompleted }
-	}
-	
+
 	/// Добавление нового задания.
 	func addTask(task: TaskItem) {
 		taskList.append(task)
@@ -75,11 +46,7 @@ final class TaskManager: ITaskManager {
 	func removeTask(task: TaskItem) {
 		
 		taskList.removeAll { $0.id == task.id }
-		storageManager.fetchTasks().forEach { taskEntity in
-			if taskEntity.id == task.id {
-				storageManager.deleteTask(taskEntity)
-			}
-		}
+		storageManager.deleteTask(withId: task.id)
 	}
 	
 	/// Редактировние  задания из списка

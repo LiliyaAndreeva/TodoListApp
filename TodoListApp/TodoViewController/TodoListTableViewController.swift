@@ -29,16 +29,12 @@ final class TodoListViewController: UIViewController{
 		view.backgroundColor = .systemBackground
 		setupUI()
 		setupnavigationUI()
-		presenter.viewDidLoad()
-		
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		tableView.reloadData()
-		DispatchQueue.main.async {
-			self.searchBar.resignFirstResponder()
-		}
+		presenter.viewDidLoad()
 	}
 }
 
@@ -67,7 +63,7 @@ extension TodoListViewController: UITableViewDataSource {
 		}
 		let interaction = UIContextMenuInteraction(delegate: self)
 		cell.addInteraction(interaction)
-		
+
 		return cell
 	}
 }
@@ -86,20 +82,23 @@ extension TodoListViewController: UITableViewDelegate {
 
 // MARK: - Protocol's Functions
 extension TodoListViewController : ITodoListViewController {
-
+	
 	func displayTasks(tasks: [TaskItem]) {
 		self.tasks = tasks
 		updateTaskCountLabel()
 		tableView.reloadData()
 	}
-
+	
 	func updateTask(_ task: TaskItem) {
 		if let index = tasks.firstIndex(where: { $0.id == task.id }) {
 			tasks[index] = task
-			tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+		} else {
+			tasks.append(task)
 		}
+		tableView.reloadData()
 	}
 }
+
 
 // MARK: - SetupUI
 private extension TodoListViewController {
@@ -170,12 +169,33 @@ private extension TodoListViewController {
 	func setupSearchBar() -> UISearchBar {
 		let searchBar = UISearchBar()
 		searchBar.placeholder = "Search"
-		searchBar.backgroundImage = UIImage()
 		searchBar.backgroundColor = .systemGray5
 		searchBar.layer.cornerRadius = CornerRadiusSize.normal
 		searchBar.clipsToBounds = true
 		searchBar.delegate = self
+		
+		configureMicrophoneButton(for: searchBar)
 		return searchBar
+	}
+	func configureMicrophoneButton(for searchBar: UISearchBar) {
+		
+		let microphoneImage = UIImage(systemName: "mic.fill")?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+		let microphoneButton = UIButton(type: .system)
+		microphoneButton.setImage(microphoneImage, for: .normal)
+		microphoneButton.setImage(microphoneImage?.withTintColor(.accent, renderingMode: .alwaysOriginal), for: .highlighted)
+		microphoneButton.sizeToFit()
+		microphoneButton.addTarget(self, action: #selector(microphoneButtonTapped), for: .touchUpInside)
+		
+	
+		searchBar.addSubview(microphoneButton)
+		
+		microphoneButton.translatesAutoresizingMaskIntoConstraints = false
+		NSLayoutConstraint.activate([
+			microphoneButton.trailingAnchor.constraint(equalTo: searchBar.trailingAnchor, constant: -ConstraintSizes.sizeXl),
+			microphoneButton.centerYAnchor.constraint(equalTo: searchBar.centerYAnchor)
+		])
+		
+		microphoneButton.tag = 1001
 	}
 	
 	func setupTableView() -> UITableView {
@@ -206,8 +226,8 @@ private extension TodoListViewController {
 		
 		NSLayoutConstraint.activate([
 			searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: ConstraintSizes.sizeS),
-			searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: ConstraintSizes.sizeL),
-			searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -ConstraintSizes.sizeL),
+			searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: ConstraintSizes.sizeXS),
+			searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -ConstraintSizes.sizeXS),
 			searchBar.heightAnchor.constraint(equalToConstant: ConstraintSizes.sizeBig),
 			
 			tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: ConstraintSizes.sizeS),
@@ -240,19 +260,41 @@ private extension TodoListViewController {
 	@objc
 	func editButtonTapped() {
 		presenter.addNewTask()
-		print("кнопка создания новой задачи нажата")
+	}
+	
+	@objc func microphoneButtonTapped() {
+		print("Microphone tapped!")
 	}
 }
 
 // MARK: - UISearchBarDelegate
 extension TodoListViewController: UISearchBarDelegate {
 	func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-			isSearchActive = !searchText.isEmpty
-			filteredTasks = tasks.filter { $0.title.lowercased().contains(searchText.lowercased()) }
-			tableView.reloadData()
+		
+		if searchText.isEmpty {
+			if let microphoneButton = searchBar.viewWithTag(1001) as? UIButton {
+				microphoneButton.alpha = 1
+				microphoneButton.isEnabled = true
+			}
+		} else {
+			if let microphoneButton = searchBar.viewWithTag(1001) as? UIButton {
+				microphoneButton.alpha = 0
+				microphoneButton.isEnabled = false
+			}
 		}
+		isSearchActive = !searchText.isEmpty
+		filteredTasks = tasks.filter { $0.title.lowercased().contains(searchText.lowercased()) }
+		tableView.reloadData()
+		
+
+	}
+	
 	func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-		searchBar.showsCancelButton = true
+		// Скрываем кнопку микрофона при начале редактирования
+		if let microphoneButton = view.viewWithTag(1001) as? UIButton {
+			microphoneButton.alpha = 0
+			microphoneButton.isEnabled = false
+		}
 	}
 	
 	func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -263,8 +305,14 @@ extension TodoListViewController: UISearchBarDelegate {
 	}
 	
 	func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-		searchBar.showsCancelButton = false
-		searchBar.resignFirstResponder()
+		//searchBar.showsCancelButton = false
+		//searchBar.resignFirstResponder()
+		if searchBar.text?.isEmpty ?? true {
+			if let microphoneButton = searchBar.viewWithTag(1001) as? UIButton {
+				microphoneButton.alpha = 1
+				microphoneButton.isEnabled = true
+			}
+		}
 	}
 
 }

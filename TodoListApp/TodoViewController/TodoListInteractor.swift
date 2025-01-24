@@ -8,10 +8,11 @@
 import Foundation
 protocol ITodoListInteractor: AnyObject {
 	func fetchDataFromJson()
-	func getTaskListCount() -> Int
+//	func getTaskListCount() -> Int
 	func updateTask(with id: Int)
 	func removeTask(at indexPath: IndexPath)
 	func shareTask(at indexPath: IndexPath)
+	func addTask(_ task: TaskItem)
 }
 
 
@@ -33,9 +34,7 @@ final class TodoListInteractor: ITodoListInteractor {
 		self.storageManager = storageManager
 		self.taskmanager = taskmanager
 	}
-	
-	
-	
+
 	func fetchDataFromJson() {
 		loadTasksFromStorage()
 		
@@ -60,24 +59,19 @@ final class TodoListInteractor: ITodoListInteractor {
 						
 						DispatchQueue.main.async {
 							self.presenter?.didFetchTasks(self.taskList)
-							//self.viewController?.updateTaskList(tasks: self.taskList)
-							print("Задачи загружены из Json")
 						}
 					}
 				}
 			)
 		} else {
 			DispatchQueue.main.async {
-				// self.viewController?.updateTaskList(tasks: self.taskList)
 				self.presenter?.didFetchTasks(self.taskList)
 				print("Задачи загружены из CoreData")
 			}
 		}
 		
 	}
-	
-	
-	
+
 	func convertTasksToTaskItems(tasks: [Task]) -> [TaskItem] {
 		return tasks.map { TaskItem(from: $0) }
 	}
@@ -105,14 +99,38 @@ final class TodoListInteractor: ITodoListInteractor {
 		}
 	}
 	
-	func getTaskListCount() -> Int {
-		return taskList.count
-	}
+//	func updateTask(_ updatedTask: TaskItem) {
+//		DispatchQueue.global(qos: .background).async { [weak self] in
+//			guard let self = self else { return }
+//			guard let index = self.taskList.firstIndex(where: { $0.id == updatedTask.id }) else {
+//				print("Task with id \(updatedTask.id) not found")
+//				return
+//			}
+//			
+//			// Обновляем задачу в списке
+//			self.taskList[index] = updatedTask
+//			
+//			// Обновляем задачу в хранилище
+//			self.taskmanager.editTask(task: updatedTask)
+//			
+//			// Уведомляем презентер об изменениях
+//			DispatchQueue.main.async {
+//				self.presenter?.didEditTask(updatedTask)
+//			}
+//		}
+//	}
+	
+//	func getTaskListCount() -> Int {
+//		return taskList.count
+//	}
 	func shareTask(at indexPath: IndexPath)
 	{
 		print("ShareTask button did tapped")
 	}
 	
+	func addTask(_ task: TaskItem) {
+		taskmanager.addTask(task: task)
+	}
 
 	func removeTask(at indexPath: IndexPath) {
 		DispatchQueue.global(qos: .background).async { [weak self] in

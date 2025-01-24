@@ -16,19 +16,21 @@ final class TodoListRouter: TodoListRouterProtocol {
 	weak var viewController: UIViewController?
 	
 	func navigateToTaskDetails(for task: TaskItem?) {
-		if let task = task {
-			print("Navigating to Task Details with task: \(task.title)")
-		} else {
-			print("Navigating to Task Details with a new task")
+		let defaultTask = TaskItem(title: "Введите название задачи")
+		guard let taskDetailsViewController = AssemblerTaskDetail.build(with: task ?? defaultTask) as? TaskDetailsViewController else {
+			assertionFailure("AssemblerTaskDetail.build не вернул TaskDetailsViewController")
+			return
 		}
-		
-		let defaultTask = TaskItem(title: "Заголовок")
-		let taskDetailsViewController = AssemblerTaskDetail.build(with: task ?? defaultTask)
-		
+		taskDetailsViewController.onSave = { [weak self] updatedTask in
+			guard let self = self else { return }
+			if let updatedTask = updatedTask {
+				if let presenter = (self.viewController as? TodoListViewController)?.presenter {
+					presenter.didEditTask(updatedTask)
+				}
+			}
+		}
 		viewController?.navigationController?.pushViewController(taskDetailsViewController, animated: true)
-		
 	}
-
 }
 
 
