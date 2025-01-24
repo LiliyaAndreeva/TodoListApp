@@ -12,10 +12,8 @@ TodoListApp — это приложение для управления зада
 Язык: Swift
 Архитектура: VIPER
 UI: UIKit
-Хранение данных: Core Data (или другая используемая технология)
+Хранение данных: Core Data 
 Тестирование: XCTest
-🖼️ Интерфейс
-Скриншоты интерфейса:
 ![Main Screen](https://github.com/LiliyaAndreeva/TodoListApp/blob/main/Simulator%20Screenshot%20-%20iPhone%2016%20Pro%20-%202025-01-24%20at%2016.03.27.png)
 ![Main Screen](https://github.com/LiliyaAndreeva/TodoListApp/blob/main/Simulator%20Screenshot%20-%20iPhone%2016%20Pro%20-%202025-01-24%20at%2016.03.55.png)
 ![Main Screen](https://github.com/LiliyaAndreeva/TodoListApp/blob/main/Simulator%20Screenshot%20-%20iPhone%2016%20Pro%20-%202025-01-24%20at%2016.03.42.png)
