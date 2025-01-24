@@ -10,7 +10,7 @@ class CustomButton: UIButton {
 	// MARK: - Properties
 	private let checkmarkImageView: UIImageView = {
 		let imageView = UIImageView()
-		imageView.image = UIImage(systemName: "checkmark") // Системный чекмарк
+		imageView.image = UIImage(systemName: "checkmark")
 		imageView.tintColor = .gray
 		imageView.alpha = 0
 		return imageView

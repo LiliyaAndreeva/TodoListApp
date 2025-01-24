@@ -87,42 +87,17 @@ final class TodoListInteractor: ITodoListInteractor {
 		DispatchQueue.global(qos: .background).async { [weak self] in
 			guard let self = self else { return }
 			guard let index = taskList.firstIndex(where: { $0.id == id }) else { return }
-			taskList[index].isCompleted.toggle() // Переключаем состояние
+			taskList[index].isCompleted.toggle()
 			
 			let updatedTask = taskList[index]
-			self.taskmanager.editTask(task: updatedTask) // Обновляем в TaskManager
-			
-			// Сохраняем в хранилище
+			self.taskmanager.editTask(task: updatedTask)
+
 			DispatchQueue.main.async {
-				self.presenter?.didUpdateTask(updatedTask) // Уведомляем презентер
+				self.presenter?.didUpdateTask(updatedTask)
 			}
 		}
 	}
 	
-//	func updateTask(_ updatedTask: TaskItem) {
-//		DispatchQueue.global(qos: .background).async { [weak self] in
-//			guard let self = self else { return }
-//			guard let index = self.taskList.firstIndex(where: { $0.id == updatedTask.id }) else {
-//				print("Task with id \(updatedTask.id) not found")
-//				return
-//			}
-//			
-//			// Обновляем задачу в списке
-//			self.taskList[index] = updatedTask
-//			
-//			// Обновляем задачу в хранилище
-//			self.taskmanager.editTask(task: updatedTask)
-//			
-//			// Уведомляем презентер об изменениях
-//			DispatchQueue.main.async {
-//				self.presenter?.didEditTask(updatedTask)
-//			}
-//		}
-//	}
-	
-//	func getTaskListCount() -> Int {
-//		return taskList.count
-//	}
 	func shareTask(at indexPath: IndexPath)
 	{
 		print("ShareTask button did tapped")

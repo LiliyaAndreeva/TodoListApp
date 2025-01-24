@@ -14,7 +14,6 @@ protocol IStorageManager {
 	func editTask(id: Int, title: String, description: String, date: Date, completed: Bool)
 	func deleteTask(_ task: TaskEntity)
 	func saveTasks(taskItems: [TaskItem])
-//	func saveTasksToCoreData(tasks: [TaskItem])
 	func deleteTask(withId id: Int)
 }
 
@@ -136,8 +135,7 @@ extension StorageManager: IStorageManager {
 		
 		do {
 			let tasksToDelete = try context.fetch(fetchRequest)
-			
-			// Удаляем все задачи с данным id
+
 			for task in tasksToDelete {
 				context.delete(task)
 			}

@@ -209,7 +209,7 @@ private extension TodoListViewController {
 	}
 	func setupBackButton() {
 		let backButton = UIBarButtonItem()
-		backButton.title = "Назад" // Устанавливаем текст кнопки
+		backButton.title = "Назад"
 		navigationItem.backBarButtonItem = backButton
 	}
 	func setupnavigationUI() {
@@ -290,7 +290,6 @@ extension TodoListViewController: UISearchBarDelegate {
 	}
 	
 	func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-		// Скрываем кнопку микрофона при начале редактирования
 		if let microphoneButton = view.viewWithTag(1001) as? UIButton {
 			microphoneButton.alpha = 0
 			microphoneButton.isEnabled = false
@@ -305,8 +304,7 @@ extension TodoListViewController: UISearchBarDelegate {
 	}
 	
 	func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-		//searchBar.showsCancelButton = false
-		//searchBar.resignFirstResponder()
+		searchBar.resignFirstResponder()
 		if searchBar.text?.isEmpty ?? true {
 			if let microphoneButton = searchBar.viewWithTag(1001) as? UIButton {
 				microphoneButton.alpha = 1
